@@ -28,7 +28,13 @@ public final class PropertyNamer {
     // Prevent Instantiation of Static Class
   }
 
+  /**
+   * 根据方法名获得属性名
+   * @param name
+   * @return
+   */
   public static String methodToProperty(String name) {
+    //假如参数name是setId;
     if (name.startsWith("is")) {
       name = name.substring(2);
     } else if (name.startsWith("get") || name.startsWith("set")) {
@@ -37,6 +43,8 @@ public final class PropertyNamer {
       throw new ReflectionException("Error parsing property name '" + name + "'.  Didn't start with 'is', 'get' or 'set'.");
     }
 
+    //经过上面的步骤,name = Id
+    //如果name的长度为1或者(name的长度大于1并且第二个字符不是大写字母)，则将name的第一个字符转换为小写字母
     if (name.length() == 1 || (name.length() > 1 && !Character.isUpperCase(name.charAt(1)))) {
       name = name.substring(0, 1).toLowerCase(Locale.ENGLISH) + name.substring(1);
     }
@@ -44,6 +52,11 @@ public final class PropertyNamer {
     return name;
   }
 
+  /**
+   * 判断是否为is\get\set方法
+   * @param name
+   * @return
+   */
   public static boolean isProperty(String name) {
     return name.startsWith("get") || name.startsWith("set") || name.startsWith("is");
   }

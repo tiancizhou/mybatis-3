@@ -21,10 +21,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
+ * java.lang.Enum 和 java.util.String 的互相转换
+ *
  * @author Clinton Begin
  */
 public class EnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
 
+  /**
+   * 枚举类
+   */
   private final Class<E> type;
 
   public EnumTypeHandler(Class<E> type) {

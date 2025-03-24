@@ -30,6 +30,8 @@ import org.apache.ibatis.cache.CacheException;
 import org.apache.ibatis.io.Resources;
 
 /**
+ * 支持序列化值的 Cache 实现类
+ *
  * @author Clinton Begin
  */
 public class SerializedCache implements Cache {
@@ -90,6 +92,11 @@ public class SerializedCache implements Cache {
     return delegate.equals(obj);
   }
 
+  /**
+   * 序列化
+   * @param value
+   * @return
+   */
   private byte[] serialize(Serializable value) {
     try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
          ObjectOutputStream oos = new ObjectOutputStream(bos)) {
@@ -101,6 +108,11 @@ public class SerializedCache implements Cache {
     }
   }
 
+  /**
+   * 反序列化
+   * @param value
+   * @return
+   */
   private Serializable deserialize(byte[] value) {
     Serializable result;
     try (ByteArrayInputStream bis = new ByteArrayInputStream(value);

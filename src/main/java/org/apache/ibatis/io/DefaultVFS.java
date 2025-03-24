@@ -35,6 +35,12 @@ import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 
 /**
+ * 继承 VFS 抽象类，默认的 VFS 实现类。
+ *
+ * DefaultVFS 类为 MyBatis 提供了一个通用的资源加载机制，
+ * 通过处理不同类型的资源和 URL，确保在各种应用服务器环境下都能正确地找到和列出资源。
+ * 它的实现考虑了多种情况，包括 JAR 文件、普通目录等，并通过递归和异常处理保证了资源加载的准确性和健壮性。
+ *
  * A default implementation of {@link VFS} that works for most application servers.
  *
  * @author Ben Gunter
@@ -50,6 +56,15 @@ public class DefaultVFS extends VFS {
     return true;
   }
 
+  /**
+   * 递归的列出所有资源
+   *
+   * @param url The URL that identifies the resource to list.
+   * @param path The path to the resource that is identified by the URL. Generally, this is the
+   *            value passed to {@link #getResources(String)} to get the resource URL.
+   * @return
+   * @throws IOException
+   */
   @Override
   public List<String> list(URL url, String path) throws IOException {
     InputStream is = null;
@@ -58,17 +73,20 @@ public class DefaultVFS extends VFS {
 
       // First, try to find the URL of a JAR file containing the requested resource. If a JAR
       // file is found, then we'll list child resources by reading the JAR.
+      //如果 URL 指向的是 Jar文件，则返回该 Jar Resource
       URL jarUrl = findJarForResource(url);
       if (jarUrl != null) {
         is = jarUrl.openStream();
         if (log.isDebugEnabled()) {
           log.debug("Listing " + url);
         }
+        //遍历Jar Resource
         resources = listResources(new JarInputStream(is), path);
       }
       else {
         List<String> children = new ArrayList<>();
         try {
+          //判断为Jar URL
           if (isJar(url)) {
             // Some versions of JBoss VFS might give a JAR stream even if the resource
             // referenced by the URL isn't actually a JAR
@@ -94,6 +112,7 @@ public class DefaultVFS extends VFS {
              * the class loader as a child of the current resource. If any line fails
              * then we assume the current resource is not a directory.
              */
+            //<1> 获得路径下的所有资源
             is = url.openStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             List<String> lines = new ArrayList<>();
@@ -140,12 +159,14 @@ public class DefaultVFS extends VFS {
         }
 
         // The URL prefix to use when recursively listing child resources
+        //<2> 计算prefix
         String prefix = url.toExternalForm();
         if (!prefix.endsWith("/")) {
           prefix = prefix + "/";
         }
 
         // Iterate over immediate children, adding files and recursing into directories
+        //<3> 遍历子路径
         for (String child : children) {
           String resourcePath = path + "/" + child;
           resources.add(resourcePath);

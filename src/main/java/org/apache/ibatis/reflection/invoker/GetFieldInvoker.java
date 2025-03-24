@@ -23,16 +23,21 @@ import org.apache.ibatis.reflection.Reflector;
  * @author Clinton Begin
  */
 public class GetFieldInvoker implements Invoker {
+  /**
+   * Filed 对象
+   */
   private final Field field;
 
   public GetFieldInvoker(Field field) {
     this.field = field;
   }
 
+  //获得属性
   @Override
   public Object invoke(Object target, Object[] args) throws IllegalAccessException {
     try {
       return field.get(target);
+    //如果属性不可见，则尝试设置属性可见性，然后返回属性
     } catch (IllegalAccessException e) {
       if (Reflector.canControlMemberAccessible()) {
         field.setAccessible(true);
@@ -43,6 +48,7 @@ public class GetFieldInvoker implements Invoker {
     }
   }
 
+  //返回属性类型
   @Override
   public Class<?> getType() {
     return field.getType();

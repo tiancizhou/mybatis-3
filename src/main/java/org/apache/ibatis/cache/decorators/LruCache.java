@@ -22,6 +22,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import org.apache.ibatis.cache.Cache;
 
 /**
+ *  使用LRU算法淘汰：上次使用距离现在最久的key
+ *
  * Lru (least recently used) cache decorator
  *
  * @author Clinton Begin
@@ -48,12 +50,16 @@ public class LruCache implements Cache {
   }
 
   public void setSize(final int size) {
+    //LinkedHashMap的一个构造函数，当参数accessOrder为true时，即会按照访问顺序排序，最近访问的放在最前，最早访问的放在后面
     keyMap = new LinkedHashMap<Object, Object>(size, .75F, true) {
       private static final long serialVersionUID = 4267176411845948333L;
 
+      // LinkedHashMap自带的判断是否删除最老的元素方法，默认返回false，即不删除老数据
+      // 我们要做的就是重写这个方法，当满足一定条件时删除老数据
       @Override
       protected boolean removeEldestEntry(Map.Entry<Object, Object> eldest) {
         boolean tooBig = size() > size;
+        //达到容量上限，设置删除最老的key
         if (tooBig) {
           eldestKey = eldest.getKey();
         }
@@ -92,6 +98,7 @@ public class LruCache implements Cache {
 
   private void cycleKeyList(Object key) {
     keyMap.put(key, key);
+    //判断是否删除最老的key
     if (eldestKey != null) {
       delegate.removeObject(eldestKey);
       eldestKey = null;

@@ -25,6 +25,8 @@ import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 
 /**
+ * 解析器工具类，用于获得指定目录符合条件的类们
+ *
  * <p>ResolverUtil is used to locate classes that are available in the/a class path and meet
  * arbitrary conditions. The two most common conditions are that a class implements/extends
  * another class, or that is it annotated with a specific annotation. However, through the use
@@ -63,6 +65,8 @@ public class ResolverUtil<T> {
   private static final Log log = LogFactory.getLog(ResolverUtil.class);
 
   /**
+   * 内部类，匹配判断接口
+   *
    * A simple interface that specifies how to test classes to determine if they
    * are to be included in the results produced by the ResolverUtil.
    */
@@ -75,6 +79,8 @@ public class ResolverUtil<T> {
   }
 
   /**
+   * 实现Test接口，判断是否为指定的类
+   *
    * A Test that checks to see if each class is assignable to the provided class. Note
    * that this test will match the parent type itself if it is presented for matching.
    */
@@ -99,6 +105,8 @@ public class ResolverUtil<T> {
   }
 
   /**
+   * 判断是否有指定的注解
+   *
    * A Test that checks to see if each class is annotated with a specific annotation. If it
    * is, then the test returns true, otherwise false.
    */
@@ -123,6 +131,9 @@ public class ResolverUtil<T> {
   }
 
   /** The set of matches being accumulated. */
+  /**
+   * 符合条件的类的集合
+   */
   private Set<Class<? extends T>> matches = new HashSet<>();
 
   /**
@@ -204,6 +215,9 @@ public class ResolverUtil<T> {
   }
 
   /**
+   * 获得指定包下，符合条件的类
+   *
+   *
    * Scans for classes starting at the package provided and descending into subpackages.
    * Each class is offered up to the Test as it is discovered, and if the Test returns
    * true the class is retained.  Accumulated classes can be fetched by calling
@@ -214,10 +228,13 @@ public class ResolverUtil<T> {
    *        classes, e.g. {@code net.sourceforge.stripes}
    */
   public ResolverUtil<T> find(Test test, String packageName) {
+    //<1> 获得包的路径，包是以.分隔的，而路径是以/分隔的
     String path = getPackagePath(packageName);
 
     try {
+      //<2> 获得路径下的所有文件
       List<String> children = VFS.getInstance().list(path);
+      //<3> 遍历
       for (String child : children) {
         if (child.endsWith(".class")) {
           addIfMatching(test, child);
@@ -250,12 +267,14 @@ public class ResolverUtil<T> {
   @SuppressWarnings("unchecked")
   protected void addIfMatching(Test test, String fqn) {
     try {
+      //获得全类名
       String externalName = fqn.substring(0, fqn.indexOf('.')).replace('/', '.');
       ClassLoader loader = getClassLoader();
       if (log.isDebugEnabled()) {
         log.debug("Checking to see if class " + externalName + " matches criteria [" + test + "]");
       }
 
+      //加载类
       Class<?> type = loader.loadClass(externalName);
       if (test.matches(type)) {
         matches.add((Class<T>) type);

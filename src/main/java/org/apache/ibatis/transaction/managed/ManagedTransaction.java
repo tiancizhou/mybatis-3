@@ -25,6 +25,10 @@ import org.apache.ibatis.session.TransactionIsolationLevel;
 import org.apache.ibatis.transaction.Transaction;
 
 /**
+ * 基于容器管理的事务实现类
+ * （当使用 MyBatis 与 Spring 集成时，通常会借助 Spring 的事务管理器（如 DataSourceTransactionManager）来管理事务，
+ * 而非使用 MyBatis 自带的 ManagedTransaction。Spring 的事务管理更加灵活，支持多种事务传播行为和隔离级别，并且可以通过注解或者 XML 配置轻松地实现事务管理。）
+ *
  * {@link Transaction} that lets the container manage the full lifecycle of the transaction.
  * Delays connection retrieval until getConnection() is called.
  * Ignores all commit or rollback requests.
@@ -41,6 +45,10 @@ public class ManagedTransaction implements Transaction {
   private DataSource dataSource;
   private TransactionIsolationLevel level;
   private Connection connection;
+
+  /**
+   * 事务结束时是否关闭数据库连接
+   */
   private final boolean closeConnection;
 
   public ManagedTransaction(Connection connection, boolean closeConnection) {

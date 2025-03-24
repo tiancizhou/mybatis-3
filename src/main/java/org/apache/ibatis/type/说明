@@ -1,0 +1,12 @@
+① MyBatis 为简化配置文件提供了别名机制，该机制是类型转换模块的主要功能之一。
+
+② 类型转换模块的另一个功能是实现 JDBC 类型与 Java 类型之间的转换，该功能在为 SQL 语句绑定实参以及映射查询结果集时都会涉及：
+
+在为 SQL 语句绑定实参时，会将数据由 Java 类型转换成 JDBC 类型。
+而在映射结果集时，会将数据由 JDBC 类型转换成 Java 类型。
+
+重点:
+1、TypeHandler：一个接口，BaseTypeHandler是一个抽象类，实现了这个接口，其他的各种数据类型的类继承这个抽象类，对应Java类型和JDBC类型的相互转换。
+2、TypeReference：BaseTypeHandler的抽象父类，用来解析BaseTypeHandler类上定义的泛型，从而在运行时获取泛型对应的实际类型参数。
+3、TypeHandlerRegister：一个容器，存放TypeHandler和Jdbc Type、Java Type的映射关系。
+4、TypeAliasRegister：一个容器，存放别名和Java Type的映射。

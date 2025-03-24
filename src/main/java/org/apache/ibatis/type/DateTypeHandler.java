@@ -23,6 +23,8 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 /**
+ * 可视化时间和时间戳的相互转换
+ *
  * @author Clinton Begin
  */
 public class DateTypeHandler extends BaseTypeHandler<Date> {
@@ -30,6 +32,7 @@ public class DateTypeHandler extends BaseTypeHandler<Date> {
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Date parameter, JdbcType jdbcType)
       throws SQLException {
+    //将date转换成timestamp类型：可视化时间和时间戳的相互转换
     ps.setTimestamp(i, new Timestamp(parameter.getTime()));
   }
 

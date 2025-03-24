@@ -20,6 +20,10 @@ import java.util.concurrent.locks.ReadWriteLock;
 import org.apache.ibatis.cache.Cache;
 
 /**
+ * 同步的 Cache 实现类
+ *
+ * synchronized锁在实例方法上，则不同线程操作同一个SynchronizedCache实例只能有一个线程操作成功。
+ *
  * @author Clinton Begin
  */
 public class SynchronizedCache implements Cache {

@@ -39,6 +39,7 @@ public class JdbcTransactionFactory implements TransactionFactory {
 
   @Override
   public Transaction newTransaction(Connection conn) {
+    //创建JdbcTransaction实例
     return new JdbcTransaction(conn);
   }
 

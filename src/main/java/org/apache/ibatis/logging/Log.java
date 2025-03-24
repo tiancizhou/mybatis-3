@@ -16,22 +16,60 @@
 package org.apache.ibatis.logging;
 
 /**
+ * Log 接口，定义了日志的基本方法
+ * 
  * @author Clinton Begin
  */
 public interface Log {
 
-  boolean isDebugEnabled();
+    /**
+     * 判断是否启用调试日志
+     * 
+     * @return
+     */
+    boolean isDebugEnabled();
 
-  boolean isTraceEnabled();
+    /**
+     * 判断是否启用跟踪日志
+     * 
+     * @return
+     */
+    boolean isTraceEnabled();
 
-  void error(String s, Throwable e);
+    /**
+     * 输出错误日志
+     * 
+     * @param s
+     * @param e
+     */
+    void error(String s, Throwable e);
 
-  void error(String s);
+    /**
+     * 输出错误日志
+     * 
+     * @param s
+     */
+    void error(String s);
 
-  void debug(String s);
+    /**
+     * 输出调试日志
+     * 
+     * @param s
+     */
+    void debug(String s);
 
-  void trace(String s);
+    /**
+     * 输出跟踪日志
+     * 
+     * @param s
+     */
+    void trace(String s);
 
-  void warn(String s);
+    /**
+     * 输出警告日志
+     * 
+     * @param s
+     */
+    void warn(String s);
 
 }

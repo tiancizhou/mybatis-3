@@ -1,0 +1,64 @@
+解析器模块：
+1、对XPath进行封装，解析mybatis-config.xml文件、映射配置文件。
+2、处理动态SQL语句中的占位符。
+
+疑问解答：
+1、当外部调用eval方法族来获取xml文件中的元素和节点时，是如何与tokenHandler、variables衔接上的？
+
+  public String evalString(Object root, String expression) {
+    //1> 获取值
+    String result = (String) evaluate(expression, root, XPathConstants.STRING);
+    //2> 基于variables替换动态值。
+    result = PropertyParser.parse(result, variables);
+    return result;
+  }
+
+流程：
+一、XPathParser类
+（1）将mybatis-config.xml转换成document对象，document对象中包含了很多属性，例如variables、tokenHandler等。
+（2）xpath提供了evaluate方法：支持eval方法族通过document对象获取xml文件中的元素和节点。
+
+二、GenericTokenParser类
+/**
+ * 不理解这个类的作用，就看下面的代码。
+ * 通过解析特定的标识符从而实现内容的替换
+ *
+ * public class GenericTokenParserExample {
+ *     public static void main(String[] args) {
+ *         String text = "Hello, ${name}! Your age is ${age}.";
+ *         GenericTokenParser parser = new GenericTokenParser("${", "}", new TokenHandler() {
+ *             @Override
+ *             public String handleToken(String content) {
+ *                 if ("name".equals(content)) {
+ *                     return "John";
+ *                 } else if ("age".equals(content)) {
+ *                     return "30";
+ *                 }
+ *                 return content;
+ *             }
+ *         });
+ *         String result = parser.parse(text);
+ *         System.out.println(result); // 输出: Hello, John! Your age is 30.
+ *     }
+ * }
+ */
+
+ 三、PropertyParser类
+
+ 对值进行动态替换。
+
+   /**
+    * 核心方法
+    * @param string
+    * @param variables
+    * @return
+    */
+   public static String parse(String string, Properties variables) {
+     //1> 创建variableTokenHandler对象
+     VariableTokenHandler handler = new VariableTokenHandler(variables);
+     //2> 创建GenericTokenParser对象
+     GenericTokenParser parser = new GenericTokenParser("${", "}", handler);
+     //3> 解析string字符串，返回解析后的字符串
+     return parser.parse(string);
+   }
+

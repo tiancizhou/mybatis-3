@@ -23,10 +23,24 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
  * @author Clinton Begin
+ *
+ * 对象包装器接口，基于MetaClass工具类，定义对指定对象的各种操作
+ *
  */
 public interface ObjectWrapper {
+  /**
+   * 获得值
+   * @param prop 相当于健
+   * @return
+   */
 
   Object get(PropertyTokenizer prop);
+
+  /**
+   * 设置值
+   * @param prop 相当于健
+   * @param value 相当于值
+   */
 
   void set(PropertyTokenizer prop, Object value);
 
@@ -46,7 +60,16 @@ public interface ObjectWrapper {
 
   MetaObject instantiatePropertyValue(String name, PropertyTokenizer prop, ObjectFactory objectFactory);
 
+  /**
+   * 是否为集合
+   * @return
+   */
   boolean isCollection();
+
+  /**
+   * 添加元素到集合
+   * @param element
+   */
 
   void add(Object element);
 

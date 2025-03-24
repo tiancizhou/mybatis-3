@@ -48,6 +48,8 @@ import org.apache.ibatis.io.ResolverUtil;
 import org.apache.ibatis.io.Resources;
 
 /**
+ * TypeHandler 注册表，相当于管理 TypeHandler 的容器，从其中能获取到对应的 TypeHandler 。
+ *
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
@@ -419,21 +421,30 @@ public final class TypeHandlerRegistry {
 
   // Construct a handler (used also from Builders)
 
+  /**
+   * 创建 TypeHandler 对象
+   * @param javaTypeClass
+   * @param typeHandlerClass
+   * @return
+   * @param <T>
+   */
   @SuppressWarnings("unchecked")
   public <T> TypeHandler<T> getInstance(Class<?> javaTypeClass, Class<?> typeHandlerClass) {
+    //获得 Class 类型的构造方法
     if (javaTypeClass != null) {
       try {
         Constructor<?> c = typeHandlerClass.getConstructor(Class.class);
-        return (TypeHandler<T>) c.newInstance(javaTypeClass);
+        return (TypeHandler<T>) c.newInstance(javaTypeClass); // 对应 EnumTypeHandler
       } catch (NoSuchMethodException ignored) {
         // ignored
       } catch (Exception e) {
         throw new TypeException("Failed invoking constructor for handler " + typeHandlerClass, e);
       }
     }
+    //<2> 获得空参的构造方法
     try {
       Constructor<?> c = typeHandlerClass.getConstructor();
-      return (TypeHandler<T>) c.newInstance();
+      return (TypeHandler<T>) c.newInstance(); //对应 IntegerTypeHandler
     } catch (Exception e) {
       throw new TypeException("Unable to find a usable constructor for " + typeHandlerClass, e);
     }

@@ -19,11 +19,26 @@ import org.apache.ibatis.reflection.MetaObject;
 
 /**
  * @author Clinton Begin
+ *
+ * ObjectWrapper 工厂接口
  */
 public interface ObjectWrapperFactory {
 
+
+  /**
+   * 是否包装了指定对象
+   *
+   * @param object
+   * @return
+   */
   boolean hasWrapperFor(Object object);
 
+  /**
+   * 获取指定对象的ObjectWrapper对象
+   * @param metaObject
+   * @param object
+   * @return
+   */
   ObjectWrapper getWrapperFor(MetaObject metaObject, Object object);
 
 }

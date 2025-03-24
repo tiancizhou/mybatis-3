@@ -19,14 +19,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.InputStream;
 
+import org.apache.ibatis.builder.xml.XMLMapperEntityResolver;
 import org.apache.ibatis.io.Resources;
 import org.junit.jupiter.api.Test;
 
 public class XPathParserTest {
 
   @Test
+  public void shouldTestXPathParserMethods1() throws Exception {
+    String resource = "resources/mybatis-config.xml";
+    try (InputStream inputStream = Resources.getResourceAsStream(resource)) {
+      XPathParser parser = new XPathParser(inputStream, true, null, new XMLMapperEntityResolver());
+      int count = parser.evalNodes("/configuration/*").size();
+      XNode node = parser.evalNode("/configuration/environments/environment");
+      String username = parser.evalString("/configuration/environments/environment/dataSource/property[@name='username']/@value");
+    }
+  }
+  @Test
   public void shouldTestXPathParserMethods() throws Exception {
     String resource = "resources/nodelet_test.xml";
+    //String resource = "resources/mybatis-config.xml";
     try (InputStream inputStream = Resources.getResourceAsStream(resource)) {
       XPathParser parser = new XPathParser(inputStream, false, null, null);
       assertEquals((Long) 1970l, parser.evalLong("/employee/birth_date/year"));

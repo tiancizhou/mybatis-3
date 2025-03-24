@@ -22,6 +22,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import org.apache.ibatis.cache.Cache;
 
 /**
+ * 基于先进先出的淘汰机制的 Cache 实现类
+ *
  * FIFO (first in, first out) cache decorator
  *
  * @author Clinton Begin
@@ -80,8 +82,11 @@ public class FifoCache implements Cache {
   }
 
   private void cycleKeyList(Object key) {
+    //添加key
     keyList.addLast(key);
+    //当达到队列上限后
     if (keyList.size() > size) {
+      //删除队列头部的key
       Object oldestKey = keyList.removeFirst();
       delegate.removeObject(oldestKey);
     }

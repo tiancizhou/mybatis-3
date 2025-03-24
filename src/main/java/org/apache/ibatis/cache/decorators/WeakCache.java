@@ -24,13 +24,30 @@ import java.util.concurrent.locks.ReadWriteLock;
 import org.apache.ibatis.cache.Cache;
 
 /**
+ *它的主要作用是实现一个基于弱引用的缓存，这种缓存可以在内存紧张时更灵活地释放缓存项，避免内存溢出，同时又能在一定程度上提高系统的性能
+ *
+ *
+ * 强引用
+ * 软引用：内存不足可能被GC
+ * 弱引用：随时可能被GC
+ * 虚引用：是一种通知，必须通过 ReferenceQueue 监听对象回收事件。虚引用的核心价值在于 “感知对象被回收的时机”，而非直接控制对象生命周期。
+ *
+ *
  * Weak Reference cache decorator.
  * Thanks to Dr. Heinz Kabutz for his guidance here.
  *
  * @author Clinton Begin
  */
 public class WeakCache implements Cache {
+
+  /**
+   * 强引用键的队列
+   */
   private final Deque<Object> hardLinksToAvoidGarbageCollection;
+
+  /**
+   * 被GC回收的WeakEntry集合
+   */
   private final ReferenceQueue<Object> queueOfGarbageCollectedEntries;
   private final Cache delegate;
   private int numberOfHardLinks;

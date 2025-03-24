@@ -22,22 +22,44 @@ import java.util.List;
 import org.apache.ibatis.reflection.ArrayUtil;
 
 /**
+ *
+ *
+ * 因为 MyBatis 中的缓存键不是一个简单的 String ，
+ * 而是通过多个对象组成。所以 CacheKey 可以理解成将多个对象放在一起，计算其缓存键。
+ * （MyBatis 中的查询可能涉及多个参数，比如 SQL 语句、参数值、分页信息等。
+ *  CacheKey 类能够将这些对象组合在一起，生成一个唯一的缓存键。这样，即使参数组合不同，也能确保每个查询对应一个独特的缓存键，避免缓存冲突。）
  * @author Clinton Begin
  */
 public class CacheKey implements Cloneable, Serializable {
 
   private static final long serialVersionUID = 1146682552656046210L;
 
+  /**
+   * 单例- 空缓存键
+   */
   public static final CacheKey NULL_CACHE_KEY = new NullCacheKey();
 
   private static final int DEFAULT_MULTIPLYER = 37;
   private static final int DEFAULT_HASHCODE = 17;
 
+  /**
+   * hashCode求值的系数
+   */
   private final int multiplier;
+
+  /**
+   * 缓存键的hashCode
+   */
   private int hashcode;
+  /**
+   * 校验和
+   */
   private long checksum;
   private int count;
   // 8/21/2017 - Sonarlint flags this as needing to be marked transient.  While true if content is not serializable, this is not always true and thus should not be marked transient.
+  /**
+   * 各种对象的集合
+   */
   private List<Object> updateList;
 
   public CacheKey() {
@@ -119,6 +141,11 @@ public class CacheKey implements Cloneable, Serializable {
     return returnValue.toString();
   }
 
+  /**
+   * 进行深拷贝
+   * @return
+   * @throws CloneNotSupportedException
+   */
   @Override
   public CacheKey clone() throws CloneNotSupportedException {
     CacheKey clonedCacheKey = (CacheKey) super.clone();

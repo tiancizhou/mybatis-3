@@ -18,6 +18,30 @@ package org.apache.ibatis.parsing;
 /**
  * @author Clinton Begin
  */
+
+/**
+ * 不理解这个类的作用，就看下面的代码。
+ * 通过解析特定的标识符从而实现内容的替换
+ *
+ * public class GenericTokenParserExample {
+ *     public static void main(String[] args) {
+ *         String text = "Hello, ${name}! Your age is ${age}.";
+ *         GenericTokenParser parser = new GenericTokenParser("${", "}", new TokenHandler() {
+ *             @Override
+ *             public String handleToken(String content) {
+ *                 if ("name".equals(content)) {
+ *                     return "John";
+ *                 } else if ("age".equals(content)) {
+ *                     return "30";
+ *                 }
+ *                 return content;
+ *             }
+ *         });
+ *         String result = parser.parse(text);
+ *         System.out.println(result); // 输出: Hello, John! Your age is 30.
+ *     }
+ * }
+ */
 public class GenericTokenParser {
 
   private final String openToken;

@@ -55,8 +55,9 @@ public class ReflectorTest {
   }
 
   static abstract class AbstractEntity implements Entity<Long> {
+    public String name;
 
-    private Long id;
+    public Long id;
 
     @Override
     public Long getId() {
@@ -70,6 +71,12 @@ public class ReflectorTest {
   }
 
   static class Section extends AbstractEntity implements Entity<Long> {
+
+    @Override
+    public Long getId() {
+      return id+1;
+    }
+
   }
 
   @Test

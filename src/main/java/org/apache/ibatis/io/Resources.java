@@ -26,6 +26,9 @@ import java.nio.charset.Charset;
 import java.util.Properties;
 
 /**
+ * Resource 工具类
+ * 基于 ClassLoaderWrapper 进行封装的工具类
+ *
  * A class to simplify access to resources through the classloader.
  *
  * @author Clinton Begin

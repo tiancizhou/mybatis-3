@@ -21,11 +21,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
+ * java.lang.Enum 和 int 的互相转换。
+ *
  * @author Clinton Begin
  */
 public class EnumOrdinalTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
 
+  /**
+   * 枚举类
+   */
   private final Class<E> type;
+
+  /**
+   * 枚举数组
+   */
   private final E[] enums;
 
   public EnumOrdinalTypeHandler(Class<E> type) {

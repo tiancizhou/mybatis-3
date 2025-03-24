@@ -1,0 +1,22 @@
+资源加载模块，主要是对类加载器进行封装，确定类加载器的使用顺序，并提供了加载类文件以及其他资源文件的功能 。
+
+1、ClassLoaderWrapper：类加载器包装，通过各种类加载器来获取资源，例如URL、InputStream。（类加载器层面的资源加载）
+2、Resources：对ClassLoaderWrapper进行封装的工具类，获取URL、InputStream等资源。
+3、VFS：虚拟文件系统( Virtual File System )抽象类，用来查找指定路径下的的文件们（文件系统层面的资源加载）
+4、DefaultVFS：对VFS的默认实现。
+
+
+1. VFS 和 DefaultVFS 的关系
+
+DefaultVFS 继承自 VFS 抽象类，是 VFS 的一个具体实现。VFS 定义了资源加载的抽象方法，
+如 isValid() 和 list() 等，DefaultVFS 实现了这些方法，为 MyBatis 在大多数标准 Java 环境下提供了资源加载的具体逻辑。
+当 MyBatis 需要加载资源时，会先尝试使用用户自定义的 VFS 实现，如果没有自定义实现，则使用 DefaultVFS。
+
+2. VFS 和 ClassLoaderWrapper 的关系
+资源加载的协作：VFS 主要负责在不同的文件系统环境下定位和列出资源，而 ClassLoaderWrapper 则负责使用类加载器来加载这些资源。
+VFS 可以通过 ClassLoaderWrapper 提供的类加载器来查找和加载资源。例如，在 DefaultVFS 的 list 方法中，可能会使用 ClassLoaderWrapper 中的类加载器来获取资源的 URL。
+环境适应性：VFS 用于处理不同环境下的文件系统差异，而 ClassLoaderWrapper 用于处理不同类加载器的差异。它们共同协作，使得 MyBatis 能够在各种复杂的环境中准确地加载资源。
+
+3. DefaultVFS 和 ClassLoaderWrapper 的关系
+资源加载的具体实现：DefaultVFS 在实现资源加载逻辑时，会借助 ClassLoaderWrapper 提供的类加载器。DefaultVFS 中的 list 方法在查找资源时，可能会调用 ClassLoaderWrapper 的方法来获取资源的 URL 或输入流。例如，DefaultVFS 可能会使用 ClassLoaderWrapper 中的类加载器来打开资源的输入流，从而读取资源内容。
+统一的资源加载接口：DefaultVFS 和 ClassLoaderWrapper 一起为 MyBatis 提供了统一的资源加载接口。DefaultVFS 处理文件系统层面的资源定位，ClassLoaderWrapper 处理类加载器层面的资源加载，它们共同确保了 MyBatis 能够在不同环境下高效、准确地加载所需的资源。

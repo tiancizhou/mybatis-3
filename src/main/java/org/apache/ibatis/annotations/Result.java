@@ -25,25 +25,48 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.UnknownTypeHandler;
 
 /**
+ * Result 注解用于配置结果集映射关系。主要用途:
+ * 1. 将数据库列名映射到 Java 对象属性
+ * 2. 配置类型转换和类型处理器
+ * 3. 配置关联关系映射(一对一、一对多)
+ * 
+ * 主要属性:
+ * - id: 是否为主键列
+ * - column: 数据库列名
+ * - property: Java 对象属性名
+ * - javaType: Java 类型
+ * - jdbcType: JDBC 类型
+ * - typeHandler: 类型处理器
+ * - one: 一对一关联配置
+ * - many: 一对多关联配置
+ * 
+ * 示例:
+ * 
+ * @Results({
+ *            @Result(property = "id", column = "user_id", id = true),
+ * @Result(property = "name", column = "user_name"),
+ * @Result(property = "email", column = "user_email")
+ *                  })
+ * 
  * @author Clinton Begin
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({})
 public @interface Result {
-  boolean id() default false;
+    boolean id() default false;
 
-  String column() default "";
+    String column() default "";
 
-  String property() default "";
+    String property() default "";
 
-  Class<?> javaType() default void.class;
+    Class<?> javaType() default void.class;
 
-  JdbcType jdbcType() default JdbcType.UNDEFINED;
+    JdbcType jdbcType() default JdbcType.UNDEFINED;
 
-  Class<? extends TypeHandler> typeHandler() default UnknownTypeHandler.class;
+    Class<? extends TypeHandler> typeHandler() default UnknownTypeHandler.class;
 
-  One one() default @One;
+    One one() default @One;
 
-  Many many() default @Many;
+    Many many() default @Many;
 }

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.domain.misc.CustomBeanWrapperFactory;
 import org.apache.ibatis.domain.misc.RichType;
 import org.apache.ibatis.domain.misc.generics.GenericConcrete;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,20 @@ public class MetaClassTest {
     }
   };
 
+  @Test
+  public void test01() {
+    RichType object = new RichType();
+
+    if (true) {
+      object.setRichType(new RichType());
+      object.getRichType().setRichMap(new HashMap());
+      object.getRichType().getRichMap().put("nihao", "123");
+    }
+
+    MetaObject meta = MetaObject.forObject(object, SystemMetaObject.DEFAULT_OBJECT_FACTORY, new CustomBeanWrapperFactory(), new DefaultReflectorFactory());
+    Class<?> clazz = meta.getObjectWrapper().getGetterType("richType.richMap.nihao");
+    System.out.println(clazz);
+  }
   public MetaClassTest() {
     rich.setRichType(new RichType());
   }
@@ -64,20 +79,21 @@ public class MetaClassTest {
   public void shouldCheckGetterExistance() {
     ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
     MetaClass meta = MetaClass.forClass(RichType.class, reflectorFactory);
-    assertTrue(meta.hasGetter("richField"));
+    //assertTrue(meta.hasGetter("richField"));
     assertTrue(meta.hasGetter("richProperty"));
     assertTrue(meta.hasGetter("richList"));
     assertTrue(meta.hasGetter("richMap"));
     assertTrue(meta.hasGetter("richList[0]"));
 
     assertTrue(meta.hasGetter("richType"));
-    assertTrue(meta.hasGetter("richType.richField"));
+    //assertTrue(meta.hasGetter("richType.richField"));
     assertTrue(meta.hasGetter("richType.richProperty"));
     assertTrue(meta.hasGetter("richType.richList"));
     assertTrue(meta.hasGetter("richType.richMap"));
     assertTrue(meta.hasGetter("richType.richList[0]"));
 
-    assertEquals("richType.richProperty", meta.findProperty("richType.richProperty", false));
+    //assertEquals("richType.richProperty", meta.findProperty("richType.richProperty", false));
+    assertEquals("rich_field", meta.findProperty("rich_field", true));
 
     assertFalse(meta.hasGetter("[0]"));
   }

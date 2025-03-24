@@ -1,0 +1,79 @@
+
+从 MyBatis 注解模块的设计我们可以学到以下几点:
+
+1. 注解作为配置方式的优势
+- 类型安全,在编译期就能发现配置错误
+- 代码即配置,避免了 XML 和 Java 代码的分离
+- IDE 支持更好,能提供代码补全和重构支持
+- 配置更加紧凑,减少了配置文件的数量
+
+2. 良好的模块化设计
+- 功能分类清晰:SQL操作、结果映射、缓存等
+- 每个注解职责单一,符合单一职责原则
+- 注解之间可以组合使用,提供了灵活性
+
+3. 设计模式的运用
+- Builder模式: @Results 等注解用于构建复杂对象
+- 代理模式: 通过注解生成代理实现接口
+- 策略模式: Provider 注解支持不同的 SQL 生成策略
+
+4. 接口设计的要点
+- 接口粒度适中,既不过大也不过小
+- 充分考虑扩展性,如 Provider 接口的设计
+- 保持向后兼容性,如 @CacheNamespaceRef 的演进
+
+5. 文档规范的重要性
+- 每个注解都有详细的文档说明
+- 提供了丰富的使用示例
+- 说明了注解的使用场景和注意事项
+
+6. 渐进式设计思想
+- 支持 XML 和注解两种配置方式并存
+- 可以根据实际需求选择合适的配置方式
+- 在不同场景下选择最适合的方案
+
+
+
+MyBatis 注解模块提供了一种使用 Java 注解来配置 SQL 映射的方式,是 XML 配置的替代方案。主要特点如下:
+
+1. 增删改查注解
+- @Insert: 插入语句注解
+- @Update: 更新语句注解  
+- @Delete: 删除语句注解
+- @Select: 查询语句注解
+- @MapKey: 指定哪个属性作为 Map 的 key
+- @Options: 配置生成主键等选项
+- @SelectKey: 主键生成注解,用于配置主键生成策略
+- @Param: 参数注解,用于给 SQL 语句中的参数指定一个名字。主要用途:
+  * 当方法有多个参数时,通过 @Param 注解来明确指定参数名,避免使用 #{0},#{1} 这样的参数索引
+  * 使 SQL 语句更具可读性,如 #{userId} 比 #{0} 更易理解
+  * 在动态 SQL 中使用带注解的参数名可以提高代码的可维护性
+  * 支持 Collection/List/Array 类型参数的绑定
+  例如:
+  @Select("SELECT * FROM users WHERE id = #{userId}")
+  User getById(@Param("userId") int id);
+- @InsertProvider: 动态 SQL 插入提供者
+- @UpdateProvider: 动态 SQL 更新提供者  
+- @DeleteProvider: 动态 SQL 删除提供者
+- @SelectProvider: 动态 SQL 查询提供者
+
+2. 结果集映射注解
+- @Results: 结果映射集合
+- @Result: 单个字段结果映射
+- @ResultMap: 引用已有的结果映射
+- @ResultType: 指定结果类型
+- @ConstructorArgs: 构造方法参数映射
+- @Arg: 构造方法参数映射
+- @One: 一对一关联
+- @Many: 一对多关联
+- @TypeDiscriminator: 类型鉴别器
+- @Case: 鉴别器分支
+
+3. 缓存注解
+- @CacheNamespace: 定义缓存空间
+- @Property: 缓存属性配置
+- @CacheNamespaceRef: 引用其他命名空间的缓存
+- @Flush: 刷新缓存
+
+
+

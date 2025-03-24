@@ -28,6 +28,9 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
  * @author Clinton Begin
+ *
+ * 类的元数据，基于Reflector和PropertyTokenizer
+ *
  */
 public class MetaClass {
 
@@ -39,24 +42,45 @@ public class MetaClass {
     this.reflector = reflectorFactory.findForClass(type);
   }
 
+  /**
+   * 创建指定类的MetaClass对象
+   * @param type
+   * @param reflectorFactory
+   * @return
+   */
   public static MetaClass forClass(Class<?> type, ReflectorFactory reflectorFactory) {
     return new MetaClass(type, reflectorFactory);
   }
 
+
+  /**
+   * 创建类的指定属性的MetaClass对象
+   * @param name
+   * @return
+   */
   public MetaClass metaClassForProperty(String name) {
+    //获得属性的类
     Class<?> propType = reflector.getGetterType(name);
     return MetaClass.forClass(propType, reflectorFactory);
   }
 
   public String findProperty(String name) {
+    //<3> 构建属性
     StringBuilder prop = buildProperty(name, new StringBuilder());
     return prop.length() > 0 ? prop.toString() : null;
   }
 
+  /**
+   * 该方法接收一个属性名 name 和一个布尔值 useCamelCaseMapping。
+   * 若 useCamelCaseMapping 为 true，就会把属性名里的下划线 _ 去掉，将下划线命名法转换为驼峰命名法。
+   * 之后调用另一个重载的 findProperty 方法来获取属性。
+   */
   public String findProperty(String name, boolean useCamelCaseMapping) {
+    //<1> 如果使用下划线命名法，则将下划线替换为空
     if (useCamelCaseMapping) {
       name = name.replace("_", "");
     }
+    //<2> 获得属性
     return findProperty(name);
   }
 
@@ -145,16 +169,27 @@ public class MetaClass {
     }
   }
 
+  /**
+   * 判断指定属性是否有 getting 方法
+   * @param name
+   * @return
+   */
   public boolean hasGetter(String name) {
+    //创建PropertyTokenizer对象,对name进行分词
     PropertyTokenizer prop = new PropertyTokenizer(name);
+    //有子表达式
     if (prop.hasNext()) {
+      //判断该属性是否有getter方法
       if (reflector.hasGetter(prop.getName())) {
+        //<1> 创建该属性的metaClass对象
         MetaClass metaProp = metaClassForProperty(prop);
         return metaProp.hasGetter(prop.getChildren());
       } else {
         return false;
       }
+    //无子表达式
     } else {
+      //判断是否有该属性的getting方法
       return reflector.hasGetter(prop.getName());
     }
   }
@@ -168,16 +203,24 @@ public class MetaClass {
   }
 
   private StringBuilder buildProperty(String name, StringBuilder builder) {
+    // 创建PropertyTokenizer对象,对name进行分词
     PropertyTokenizer prop = new PropertyTokenizer(name);
+    //有子表达式
     if (prop.hasNext()) {
+      //<4> 获得属性名，并添加到builder中。这里调用的方法，reflector维护了一个部分大小写的属性集合，所以这里会返回一个正确的属性名
       String propertyName = reflector.findPropertyName(prop.getName());
       if (propertyName != null) {
+        //拼接属性
         builder.append(propertyName);
         builder.append(".");
+        //创建metaClass对象
         MetaClass metaProp = metaClassForProperty(propertyName);
+        //递归解析
         metaProp.buildProperty(prop.getChildren(), builder);
       }
+    //无子表达式
     } else {
+      //<4> 获得属性名，并添加到builder中
       String propertyName = reflector.findPropertyName(name);
       if (propertyName != null) {
         builder.append(propertyName);

@@ -22,6 +22,11 @@ import java.sql.SQLException;
 import java.util.Date;
 
 /**
+ * Java中的 date 和 SQL 中的 date转换
+ *
+ * java.util.Date：能表示具体的日期和时间，精确到毫秒。例如，它可以表示 2024 - 10 - 15 14:30:25.123 这样精确的时间点。
+ * java.sql.Date：仅表示日期，不包含时间信息。即使你传入了带时间的信息，时间部分也会被忽略。例如，当你创建一个 java.sql.Date 对象时，它可能只表示 2024 - 10 - 15 这样的日期。
+ *
  * @author Clinton Begin
  */
 public class DateOnlyTypeHandler extends BaseTypeHandler<Date> {

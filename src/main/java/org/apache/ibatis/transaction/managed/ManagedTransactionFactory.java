@@ -33,6 +33,9 @@ import org.apache.ibatis.transaction.TransactionFactory;
  */
 public class ManagedTransactionFactory implements TransactionFactory {
 
+  /**
+   * 事务结束时是否关闭数据库连接
+   */
   private boolean closeConnection = true;
 
   @Override

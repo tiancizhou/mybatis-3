@@ -25,6 +25,11 @@ import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.cache.CacheException;
 
 /**
+ * 阻塞的Cache实现类
+ *
+ * 这里的阻塞比较特殊，当线程去获取缓存值时，如果不存在，则会阻塞后续的其他线程去获取该缓存。
+ * 为什么这么有这样的设计呢？因为当线程 A 在获取不到缓存值时，一般会去设置对应的缓存值，这样就避免其他也需要该缓存的线程 B、C 等，重复添加缓存。
+ *
  * Simple blocking decorator
  *
  * Simple and inefficient version of EhCache's BlockingCache decorator.
@@ -36,8 +41,22 @@ import org.apache.ibatis.cache.CacheException;
  */
 public class BlockingCache implements Cache {
 
+  /**
+   * 阻塞等待的超时时间
+   */
   private long timeout;
+
+  /**
+   * 装饰的Cache对象
+   */
   private final Cache delegate;
+
+  /**
+   * 缓存键和锁的映射关系
+   *
+   * 当线程去获取缓存值时，如果不存在，则会阻塞后续的其他线程去获取该缓存。
+   * 为什么这么有这样的设计呢？因为当线程 A 在获取不到缓存值时，一般会去设置对应的缓存值，这样就避免其他也需要该缓存的线程 B、C 等，重复添加缓存。
+   */
   private final ConcurrentHashMap<Object, ReentrantLock> locks;
 
   public BlockingCache(Cache delegate) {
@@ -57,6 +76,7 @@ public class BlockingCache implements Cache {
 
   @Override
   public void putObject(Object key, Object value) {
+    //添加缓存，添加完缓存再释放锁。
     try {
       delegate.putObject(key, value);
     } finally {
@@ -64,19 +84,34 @@ public class BlockingCache implements Cache {
     }
   }
 
+  /**
+   * 这里的阻塞比较特殊，当线程去获取缓存值时，如果不存在，则会阻塞后续的其他线程去获取该缓存。
+   * 为什么这么有这样的设计呢？因为当线程 A 在获取不到缓存值时，一般会去设置对应的缓存值，这样就避免其他也需要该缓存的线程 B、C 等，重复添加缓存。
+   * @param key The key
+   * @return
+   */
   @Override
   public Object getObject(Object key) {
+    //获取锁
     acquireLock(key);
+    //获取缓存
     Object value = delegate.getObject(key);
+    //缓存存在，则释放锁。
     if (value != null) {
       releaseLock(key);
     }
     return value;
   }
 
+  /**
+   * 它很特殊，和方法名字有所“冲突”，不会移除对应的缓存，只会移除锁。
+   * @param key The key
+   * @return
+   */
   @Override
   public Object removeObject(Object key) {
     // despite of its name, this method is called only to release locks
+    //释放锁
     releaseLock(key);
     return null;
   }

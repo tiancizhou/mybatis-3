@@ -22,22 +22,33 @@ import org.apache.ibatis.reflection.Reflector;
 
 /**
  * @author Clinton Begin
+ *
+ * 指定方法的调用器
  */
 public class MethodInvoker implements Invoker {
 
+  /**
+   * 类型
+   */
   private final Class<?> type;
+  /**
+   * 指定方法
+   */
   private final Method method;
 
   public MethodInvoker(Method method) {
     this.method = method;
 
+    //参数只有一个，一般是set方法，设置type为方法参数[0]
     if (method.getParameterTypes().length == 1) {
       type = method.getParameterTypes()[0];
+    //否则是get方法，设置type为方法返回值类型
     } else {
       type = method.getReturnType();
     }
   }
 
+  //执行指定方法
   @Override
   public Object invoke(Object target, Object[] args) throws IllegalAccessException, InvocationTargetException {
     try {

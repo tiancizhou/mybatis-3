@@ -19,6 +19,10 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 /**
+ * 引用泛型抽象类，解析类上定义的泛型
+ * TypeReference 类的主要作用是在运行时获取泛型的实际类型，解决了 Java 泛型擦除带来的问题。
+ * 在 MyBatis 中，它被广泛应用于类型处理器等组件，帮助框架正确处理不同类型的数据。
+ *
  * References a generic type.
  *
  * @param <T> the referenced type
@@ -27,6 +31,9 @@ import java.lang.reflect.Type;
  */
 public abstract class TypeReference<T> {
 
+  /**
+   * rawType 字段用于存储解析得到的泛型实际类型。
+   */
   private final Type rawType;
 
   protected TypeReference() {
@@ -34,10 +41,12 @@ public abstract class TypeReference<T> {
   }
 
   Type getSuperclassTypeParameter(Class<?> clazz) {
+    //<1> 从父类中获取<T>
+    //有两种可能，1、父类的Type是Class类型。2、父类的Type是ParameterizedType类型（代表参数化类型，也就是带有泛型参数的类型，例如 List<String>）。
     Type genericSuperclass = clazz.getGenericSuperclass();
     if (genericSuperclass instanceof Class) {
       // try to climb up the hierarchy until meet something useful
-      if (TypeReference.class != genericSuperclass) {
+      if (TypeReference.class != genericSuperclass) { // 排除 TypeReference 类，如果直接到达了 TypeReference 类还未找到泛型参数，那就说明子类没有正确指定泛型参数
         return getSuperclassTypeParameter(clazz.getSuperclass());
       }
 
@@ -45,8 +54,10 @@ public abstract class TypeReference<T> {
         + "Remove the extension or add a type parameter to it.");
     }
 
+    //<2> 获取 <T>
     Type rawType = ((ParameterizedType) genericSuperclass).getActualTypeArguments()[0];
     // TODO remove this when Reflector is fixed to return Types
+    //必须是泛型，才获取 <T>
     if (rawType instanceof ParameterizedType) {
       rawType = ((ParameterizedType) rawType).getRawType();
     }

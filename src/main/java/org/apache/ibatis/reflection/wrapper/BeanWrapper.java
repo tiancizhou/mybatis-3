@@ -28,23 +28,38 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
  * @author Clinton Begin
+ *
+ * 普通对象的 ObjectWrapper 实现类，例如 User、Order 这样的 POJO 类
  */
 public class BeanWrapper extends BaseWrapper {
 
+  /**
+   * 普通对象
+   */
   private final Object object;
   private final MetaClass metaClass;
 
   public BeanWrapper(MetaObject metaObject, Object object) {
     super(metaObject);
     this.object = object;
+    // 创建 MetaClass 对象
     this.metaClass = MetaClass.forClass(object.getClass(), metaObject.getReflectorFactory());
   }
 
+  /**
+   * 获得指定属性的值
+   * @param prop 相当于健
+   * @return
+   */
   @Override
   public Object get(PropertyTokenizer prop) {
+    //<1> 获得集合类型的属性的指定位置的值
     if (prop.getIndex() != null) {
+      //获得集合类型的属性
       Object collection = resolveCollection(prop, object);
+      //获得指定位置的值
       return getCollectionValue(prop, collection);
+    //<2> 不是集合类型的属性，直接获得属性的值
     } else {
       return getBeanProperty(prop, object);
     }
@@ -90,16 +105,27 @@ public class BeanWrapper extends BaseWrapper {
     }
   }
 
+  /**
+   * 获得指定属性的getting方法的返回值
+   * @param name
+   * @return
+   */
   @Override
   public Class<?> getGetterType(String name) {
+    // 创建propertyTokenizer对象,对name进行分值
     PropertyTokenizer prop = new PropertyTokenizer(name);
+    //有子表达式
     if (prop.hasNext()) {
+      //<1> 创建该子属性的metaClass对象
       MetaObject metaValue = metaObject.metaObjectForProperty(prop.getIndexedName());
+      //如果为空，则基于metaClass获得返回类型
       if (metaValue == SystemMetaObject.NULL_META_OBJECT) {
         return metaClass.getGetterType(name);
+      //如果非空，则基于metaValue获得返回类型
       } else {
         return metaValue.getGetterType(prop.getChildren());
       }
+    //无子表达式
     } else {
       return metaClass.getGetterType(name);
     }
@@ -124,6 +150,11 @@ public class BeanWrapper extends BaseWrapper {
     }
   }
 
+  /**
+   * 是否有指定属性的getting方法
+   * @param name
+   * @return
+   */
   @Override
   public boolean hasGetter(String name) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
@@ -143,13 +174,24 @@ public class BeanWrapper extends BaseWrapper {
     }
   }
 
+  /**
+   * 创建指定属性的值
+   * @param name
+   * @param prop
+   * @param objectFactory
+   * @return
+   */
   @Override
   public MetaObject instantiatePropertyValue(String name, PropertyTokenizer prop, ObjectFactory objectFactory) {
     MetaObject metaValue;
+    // 获得setting方法的方法参数类型
     Class<?> type = getSetterType(prop.getName());
     try {
+      //创建对象
       Object newObject = objectFactory.create(type);
+      //创建metaObject对象
       metaValue = MetaObject.forObject(newObject, metaObject.getObjectFactory(), metaObject.getObjectWrapperFactory(), metaObject.getReflectorFactory());
+      //<1> 设置当前对象的值
       set(prop, newObject);
     } catch (Exception e) {
       throw new ReflectionException("Cannot set value of property '" + name + "' because '" + name + "' is null and cannot be instantiated on instance of " + type.getName() + ". Cause:" + e.toString(), e);
