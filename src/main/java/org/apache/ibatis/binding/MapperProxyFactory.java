@@ -23,33 +23,75 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.ibatis.session.SqlSession;
 
 /**
+ * 代理工厂类，负责创建对应的Mapper接口的代理实例。
+ * 
  * @author Lasse Voss
  */
 public class MapperProxyFactory<T> {
 
-  private final Class<T> mapperInterface;
-  private final Map<Method, MapperMethod> methodCache = new ConcurrentHashMap<>();
+    /**
+     * Mapper接口
+     */
+    private final Class<T> mapperInterface;
 
-  public MapperProxyFactory(Class<T> mapperInterface) {
-    this.mapperInterface = mapperInterface;
-  }
+    /**
+     * 方法与MapperMethod的映射关系
+     */
+    private final Map<Method, MapperMethod> methodCache = new ConcurrentHashMap<>();
 
-  public Class<T> getMapperInterface() {
-    return mapperInterface;
-  }
+    /**
+     * 构造函数
+     * 
+     * @param mapperInterface Mapper接口
+     */
+    public MapperProxyFactory(Class<T> mapperInterface) {
+        this.mapperInterface = mapperInterface;
+    }
 
-  public Map<Method, MapperMethod> getMethodCache() {
-    return methodCache;
-  }
+    /**
+     * 获取Mapper接口
+     * 
+     * @return Mapper接口
+     */
+    public Class<T> getMapperInterface() {
+        return mapperInterface;
+    }
 
-  @SuppressWarnings("unchecked")
-  protected T newInstance(MapperProxy<T> mapperProxy) {
-    return (T) Proxy.newProxyInstance(mapperInterface.getClassLoader(), new Class[] { mapperInterface }, mapperProxy);
-  }
+    /**
+     * 获取方法缓存
+     * 
+     * @return 方法缓存
+     */
+    public Map<Method, MapperMethod> getMethodCache() {
+        return methodCache;
+    }
 
-  public T newInstance(SqlSession sqlSession) {
-    final MapperProxy<T> mapperProxy = new MapperProxy<>(sqlSession, mapperInterface, methodCache);
-    return newInstance(mapperProxy);
-  }
+    /**
+     * 通过MapperProxy创建Mapper的代理实例：
+     * 
+     * 1. 获取Mapper接口的ClassLoader
+     * 2、接口数组
+     * 3、实现InvocationHandler接口的MapperProxy实例
+     * 
+     * @param mapperProxy
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    protected T newInstance(MapperProxy<T> mapperProxy) {
+        // 创建Mapper代理实例
+        return (T) Proxy.newProxyInstance(mapperInterface.getClassLoader(), new Class[] { mapperInterface },
+                mapperProxy);
+    }
+
+    /**
+     * 创建Mapper代理实例
+     * 
+     * @param sqlSession SqlSession
+     * @return Mapper代理实例
+     */
+    public T newInstance(SqlSession sqlSession) {
+        final MapperProxy<T> mapperProxy = new MapperProxy<>(sqlSession, mapperInterface, methodCache);
+        return newInstance(mapperProxy);
+    }
 
 }
